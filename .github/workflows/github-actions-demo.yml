@@ -1,0 +1,20 @@
+name: Docker Push
+on: workflow_dispatch
+jobs:
+  Docker-Push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Installing Requirements
+        run: |
+          sudo apt-get update
+          sudo apt-get install curl
+          curl -fsSL https://get.docker.com -o get-docker.sh
+          sudo sh get-docker.sh
+      - name: Login to Docker
+        run: sudo docker login -u "${{secrets.DOCKER_USERNAME}}" -p "${{secrets.DOCKER_PASSWORD}}"
+      - name: Getting Dockerfile
+        run: wget "${{secrets.DOCKERFILE_URL}}" -O Dockerfile
+      - name: Docker Building
+        run: sudo docker build . -t anjanamadu/python-ffmpeg-megatools_img:${{secrets.PULL_VERSION}}
+      - name: Docker Pushing
+        run: sudo docker push anjanamadu/python-ffmpeg-megatools_img:${{secrets.PULL_VERSION}}
