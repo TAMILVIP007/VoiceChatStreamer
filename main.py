@@ -58,7 +58,7 @@ async def help_vc(client, message):
 @vcusr.on_message(filters.regex("^!urlvc"))
 async def url_vc(client, message):
     if not str(message.chat.id).startswith("-100"): return
-    if not str(message.from_user.id) in ADMINS: return
+    if str(message.from_user.id) not in ADMINS: return
     try: INPUT_SOURCE = message.text.split(" ", 1)[1]
     except IndexError: return await message.reply("Give video URL")
     msg = await message.reply("__Please wait.__")
@@ -76,14 +76,14 @@ async def url_vc(client, message):
 @vcusr.on_message(filters.regex("^!leavevc$"))
 async def end_vc(client, message):
     if not str(message.chat.id).startswith("-100"): return
-    if not str(message.from_user.id) in ADMINS: return
+    if str(message.from_user.id) not in ADMINS: return
     await group_call.stop()
     msg = await message.reply("__Left.__")
 
 @vcusr.on_message(filters.regex("^!ytvc (audio|video)"))
 async def yt_vc(client, message):
     if not str(message.chat.id).startswith("-100"): return
-    if not str(message.from_user.id) in ADMINS: return
+    if str(message.from_user.id) not in ADMINS: return
     try:
         INPUT_SOURCE = message.text.split(" ", 2)[2]
         SOURCE_FORMAT = message.text.split(" ", 2)[1]
@@ -99,12 +99,11 @@ async def yt_vc(client, message):
         info = yt.extract_info(finalyturl, False)
     if SOURCE_FORMAT == "video":
         if "youtube.com" in finalyturl or "youtu.be" in finalyturl:
-            yt_mode = "video"
             vvid = pafy.new(finalyturl)
             video_url = vvid.getbest().url
         else:
-            yt_mode = "video"
             video_url = info['formats'][-1]['url']
+        yt_mode = "video"
     elif SOURCE_FORMAT == "audio":
         try:
             yt_mode = "audio"
@@ -116,10 +115,10 @@ async def yt_vc(client, message):
         if group_call.is_connected: await group_call.stop()
         await group_call.join(CHAT_ID)
         await msg.edit(f"Playing. __{info['title']}__")
-        if yt_mode == "video":
-            await group_call.start_video(video_url, repeat=False)
-        elif yt_mode == "audio":
+        if yt_mode == "audio":
             await group_call.start_audio(audio_url, repeat=False)
+        elif yt_mode == "video":
+            await group_call.start_video(video_url, repeat=False)
     except Exception as e:
         await message.reply(str(e))
         return await group_call.stop()
@@ -127,7 +126,7 @@ async def yt_vc(client, message):
 @vcusr.on_message(filters.regex("^!tgvc (audio|video)$"))
 async def tg_vc(client, message):
     if not str(message.chat.id).startswith("-100"): return
-    if not str(message.from_user.id) in ADMINS: return
+    if str(message.from_user.id) not in ADMINS: return
     try: INPUT_SOURCE = message.text.split(" ", 1)[1]
     except IndexError: return await message.reply("Give file type.")
     if not message.reply_to_message: return await message.reply("Reply to video or audio")
